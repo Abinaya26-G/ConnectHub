@@ -33,24 +33,78 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         ChatMessage chatMessage = objectMapper.readValue(payload, ChatMessage.class);
         String roomCode = chatMessage.getRoomCode();
         
-        sessionRoomMap.put(session.getId(), roomCode);
-        sessionUserMap.put(session.getId(), chatMessage.getSender());
-        roomSessions.computeIfAbsent(roomCode, k -> new CopyOnWriteArrayList<>()).add(session);
+       
         
         switch (chatMessage.getType()) {
             case "JOIN":
-                broadcastOnlineCount(roomCode);
-                broadcastToRoom(roomCode, chatMessage, session);
-                if (roomSessions.get(roomCode).size() == 2) {
-                    ChatMessage readyMsg = new ChatMessage();
-                    readyMsg.setType("READY");
-                    readyMsg.setSender("System");
-                    readyMsg.setContent("Both users are here! Ready to chat.");
-                    readyMsg.setRoomCode(roomCode);
-                    readyMsg.setTimestamp(System.currentTimeMillis());
-                    broadcastToRoom(roomCode, readyMsg, null);
-                }
-                break;
+
+    sessionRoomMap.put(session.getId(), roomCode);
+    sessionUserMap.put(session.getId(), chatMessage.getSender());
+    CopyOnWriteArrayList<WebSocketSession> sessions =
+    roomSessions.computeIfAbsent(roomCode, k -> new CopyOnWriteArrayList<>());
+
+// Remove closed sessions
+sessions.removeIf(s -> !s.isOpen());
+
+// Remove previous session of the same user
+sessions.removeIf(s -> {
+    String oldUser = sessionUserMap.get(s.getId());
+
+    if (oldUser != null &&
+            oldUser.equals(chatMessage.getSender()) &&
+            !s.getId().equals(session.getId())) {
+
+        try {
+            s.close();
+        } catch (Exception ignored) {
+        }
+
+        sessionRoomMap.remove(s.getId());
+        sessionUserMap.remove(s.getId());
+
+        return true;
+    }
+
+    return false;
+});
+
+if (sessions.size() >= 2 && !sessions.contains(session)) {
+    ChatMessage full = new ChatMessage();
+    full.setType("ERROR");
+    full.setSender("System");
+    full.setContent("Room is full.");
+    full.setRoomCode(roomCode);
+    full.setTimestamp(System.currentTimeMillis());
+
+    session.sendMessage(
+            new TextMessage(objectMapper.writeValueAsString(full))
+    );
+
+    session.close();
+
+    return;
+}
+
+    // Prevent duplicate session
+    if (!sessions.contains(session)) {
+        sessions.add(session);
+    }
+
+    broadcastOnlineCount(roomCode);
+    broadcastToRoom(roomCode, chatMessage, session);
+
+    if (sessions.size() == 2) {
+        ChatMessage readyMsg = new ChatMessage();
+        readyMsg.setType("READY");
+        readyMsg.setSender("System");
+        readyMsg.setContent("Both users are here! Ready to chat.");
+        readyMsg.setRoomCode(roomCode);
+        readyMsg.setTimestamp(System.currentTimeMillis());
+
+        broadcastToRoom(roomCode, readyMsg, null);
+    }
+
+    break;
             case "LEAVE":
                 broadcastToRoom(roomCode, chatMessage, session);
                 removeSession(session);

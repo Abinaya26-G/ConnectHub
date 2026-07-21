@@ -10,6 +10,7 @@ const Dashboard = () => {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const [copied, setCopied] = useState(false)
 
   const handleCreateRoom = async () => {
     setError('')
@@ -40,11 +41,37 @@ const Dashboard = () => {
     }
   }
 
-  const copyCode = () => {
-    navigator.clipboard.writeText(createdRoomCode)
-    alert('Room code copied! Share it with your friend.')
-  }
+  const copyCode = async () => {
+  if (!createdRoomCode) return
 
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(createdRoomCode)
+    } else {
+      const textArea = document.createElement("textarea")
+      textArea.value = createdRoomCode
+      textArea.style.position = "fixed"
+      textArea.style.left = "-999999px"
+      textArea.style.top = "-999999px"
+
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+
+      document.execCommand("copy")
+      document.body.removeChild(textArea)
+    }
+
+    setCopied(true)
+
+    setTimeout(() => {
+      setCopied(false)
+    }, 2000)
+
+  } catch (error) {
+    console.error("Failed to copy room code:", error)
+  }
+}
   const enterRoom = () => {
     navigate(`/room/${createdRoomCode}`)
   }
@@ -90,11 +117,15 @@ const Dashboard = () => {
               <div className="flex items-center gap-3">
                 <span className="text-2xl font-bold text-[#5a4a3a] tracking-widest">{createdRoomCode}</span>
                 <button
-                  onClick={copyCode}
-                  className="px-3 py-1 bg-white border border-[#d4c5b0] rounded-lg text-sm text-[#8b7355] hover:bg-[#faf7f2] transition"
-                >
-                  Copy
-                </button>
+  onClick={copyCode}
+  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+    copied
+      ? "bg-green-500 text-white"
+      : "bg-white border border-[#d4c5b0] text-[#8b7355] hover:bg-[#faf7f2]"
+  }`}
+>
+  {copied ? "Copied ✓" : "Copy"}
+</button>
               </div>
               <button
                 onClick={enterRoom}
