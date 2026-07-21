@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://localhost:9090',  // Changed from 8080 to 9090
+  baseURL: 'http://13.239.242.222:9090', // Changed from 8080 to 9090
   headers: {
     'Content-Type': 'application/json',
   },
