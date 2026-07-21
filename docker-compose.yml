@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: connecthub-db
+    restart: always
+    environment:
+      POSTGRES_DB: connecthub
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 2603
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: connecthub-backend
+    depends_on:
+      - postgres
+    ports:
+      - "9090:9090"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/connecthub
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 2603
+
+  frontend:
+    build: ./frontend
+    container_name: connecthub-frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:
