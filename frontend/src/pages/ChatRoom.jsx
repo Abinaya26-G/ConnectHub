@@ -25,7 +25,7 @@ const ChatRoom = () => {
       return
     }
 
-    const ws = new WebSocket('ws://localhost:9090/ws')
+    const ws = new WebSocket('ws://13.239.242.222:9090/ws')
 
     ws.onopen = () => {
       connectedRef.current = true
