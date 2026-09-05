@@ -1,226 +1,103 @@
 # ConnectHub
 
-A temporary real-time private chat application built with **Java Spring Boot** and **React**. Users can create or join private rooms using a 6-character room code and chat in real-time without any message history.
+ConnectHub is a simple real-time private chat application made using Java Spring Boot and React.
 
----
+Users can register, login, create a room or join a room using a 6-character room code. Only two users can be in a room and they can chat with each other in real time.
 
 ## Features
 
-### Authentication
-- User Registration with email validation
-- User Login with JWT Authentication
-- BCrypt Password Encryption
-- Protected APIs with JWT
-- Logout (frontend removes JWT)
+* User registration and login
+* JWT authentication
+* BCrypt password encryption
+* Create and join rooms
+* Maximum 2 users per room
+* Real-time chat
+* Join and leave notifications
+* Online user count
+* No chat history
+* Room gets deleted when both users leave
 
-### Room Features
-- Create Room with auto-generated 6-character code
-- Join Room using room code
-- Maximum 2 participants per room
-- Third user is prevented from joining
-- Leave Room functionality
-- Room auto-deletes when all users leave
+## Technologies Used
 
-### Chat Features
-- Real-time messaging via WebSocket (STOMP + SockJS)
-- Private two-user chat only
-- No database storage for messages
-- No chat history - messages disappear after leaving
-- Online user count display
-- "User Joined" and "User Left" notifications
+* Java 21
+* Spring Boot
+* Spring Security
+* JWT
+* PostgreSQL
+* Spring Data JPA
+* WebSocket
+* STOMP
+* React
+* Vite
+* Tailwind CSS
+* Axios
+* Maven
 
----
+## How to Run
 
-## Technology Stack
+### Backend
 
-| Layer | Technology |
-|-------|-----------|
-| Backend | Java 21, Spring Boot 3.2 |
-| Security | Spring Security, JWT |
-| Database | PostgreSQL, Spring Data JPA |
-| Real-time | Spring WebSocket, STOMP, SockJS |
-| Frontend | React 18, Vite, Tailwind CSS |
-| HTTP Client | Axios |
-| Build Tool | Maven |
+Go to the backend folder:
 
----
-
-## Project Structure
-
-```
-ConnectHub/
-├── backend/
-│   ├── pom.xml
-│   └── src/main/
-│       ├── java/com/connecthub/
-│       │   ├── ConnectHubApplication.java
-│       │   ├── config/
-│       │   │   ├── SecurityConfig.java
-│       │   │   └── WebSocketConfig.java
-│       │   ├── controller/
-│       │   │   ├── AuthController.java
-│       │   │   ├── RoomController.java
-│       │   │   └── UserController.java
-│       │   ├── dto/
-│       │   │   ├── ApiResponse.java
-│       │   │   ├── AuthResponse.java
-│       │   │   ├── ChatMessage.java
-│       │   │   ├── LoginRequest.java
-│       │   │   ├── RegisterRequest.java
-│       │   │   ├── RoomRequest.java
-│       │   │   ├── RoomResponse.java
-│       │   │   └── UserProfileResponse.java
-│       │   ├── entity/
-│       │   │   ├── Room.java
-│       │   │   └── User.java
-│       │   ├── exception/
-│       │   │   ├── DuplicateEmailException.java
-│       │   │   ├── GlobalExceptionHandler.java
-│       │   │   ├── InvalidCredentialsException.java
-│       │   │   ├── ResourceNotFoundException.java
-│       │   │   ├── RoomFullException.java
-│       │   │   └── RoomNotFoundException.java
-│       │   ├── repository/
-│       │   │   ├── RoomRepository.java
-│       │   │   └── UserRepository.java
-│       │   ├── security/
-│       │   │   ├── CustomUserDetailsService.java
-│       │   │   └── JwtAuthenticationFilter.java
-│       │   ├── service/
-│       │   │   ├── AuthService.java
-│       │   │   ├── RoomService.java
-│       │   │   ├── UserService.java
-│       │   │   └── impl/
-│       │   │       ├── AuthServiceImpl.java
-│       │   │       ├── RoomServiceImpl.java
-│       │   │       └── UserServiceImpl.java
-│       │   ├── util/
-│       │   │   ├── JwtUtil.java
-│       │   │   └── RoomCodeGenerator.java
-│       │   └── websocket/
-│       │       ├── ChatWebSocketController.java
-│       │       └── WebSocketEventListener.java
-│       └── resources/
-│           └── application.properties
-├── frontend/
-│   ├── index.html
-│   ├── package.json
-│   ├── vite.config.js
-│   ├── tailwind.config.js
-│   ├── postcss.config.js
-│   └── src/
-│       ├── main.jsx
-│       ├── App.jsx
-│       ├── index.css
-│       ├── context/
-│       │   └── AuthContext.jsx
-│       ├── components/
-│       │   └── ProtectedRoute.jsx
-│       ├── pages/
-│       │   ├── Login.jsx
-│       │   ├── Register.jsx
-│       │   ├── Dashboard.jsx
-│       │   └── ChatRoom.jsx
-│       └── utils/
-│           └── api.js
-└── README.md
+```bash
+cd backend
 ```
 
----
+Update the PostgreSQL username and password in `application.properties`.
 
-## PostgreSQL Setup
+Then run:
 
-1. Install PostgreSQL and create a database:
+```bash
+mvn spring-boot:run
+```
+
+Backend will run on:
+
+`http://localhost:8080`
+
+### Frontend
+
+Go to the frontend folder:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend will run on:
+
+`http://localhost:5173`
+
+## Database
+
+Create a PostgreSQL database named:
+
 ```sql
 CREATE DATABASE connecthub;
 ```
 
-2. Update `backend/src/main/resources/application.properties`:
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/connecthub
-spring.datasource.username=your_username
-spring.datasource.password=your_password
-```
+JPA will create the required tables automatically.
 
-3. Tables are auto-created by JPA (`spring.jpa.hibernate.ddl-auto=update`)
+## WebSocket
 
----
+The chat uses WebSocket with STOMP and SockJS for real-time messaging.
 
-## Backend Setup
+Users can:
 
-1. Open `backend/` folder in IntelliJ IDEA
-2. Wait for Maven to download dependencies
-3. Update `application.properties` with your PostgreSQL credentials
-4. Run `ConnectHubApplication.java`
-5. Server starts on `http://localhost:8080`
+* Join a room
+* Send messages
+* Receive messages instantly
+* Leave the room
 
----
+## Future Improvements
 
-## Frontend Setup
-
-1. Open `frontend/` folder in VS Code
-2. Install dependencies:
-```bash
-cd frontend
-npm install
-```
-3. Start the development server:
-```bash
-npm run dev
-```
-4. Open `http://localhost:5173`
-
----
-
-## API Documentation
-
-### Authentication (Public)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/register` | Register new user |
-| POST | `/api/auth/login` | Login and get JWT |
-
-### Rooms (Protected - Bearer Token Required)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/rooms/create` | Create a new room |
-| POST | `/api/rooms/join` | Join a room by code |
-| POST | `/api/rooms/leave` | Leave current room |
-| GET | `/api/rooms/{roomCode}` | Get room details |
-
-### User (Protected)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/user/profile` | Get user profile |
-
----
-
-## WebSocket Flow
-
-1. Connect to `ws://localhost:8080/ws` using SockJS
-2. Subscribe to `/topic/room/{roomCode}` to receive messages
-3. Send messages to:
-   - `/app/chat/{roomCode}/join` - When joining
-   - `/app/chat/{roomCode}/send` - Send chat message
-   - `/app/chat/{roomCode}/leave` - When leaving
-
-### Message Types
-- `JOIN` - User joined notification
-- `LEAVE` - User left notification
-- `CHAT` - Regular chat message
-- `COUNT` - Online user count update
-
----
-
-## Future Enhancements
-- Typing indicators
-- Message reactions
-- File sharing
-- Room expiration timer
-- User avatars
-- Dark mode
-
----
+* Typing indicator
+* File sharing
+* Message reactions
+* Profile pictures
+* Dark mode
 
 ## Author
-Built for Java Backend Developer Portfolio - Fresher Level
+
+Abinaya
