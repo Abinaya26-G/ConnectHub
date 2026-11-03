@@ -60,18 +60,18 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(auth -> auth
 
-                // Public health/root endpoints
-                .requestMatchers("/", "/error").permitAll()
+    .requestMatchers(
+        "/",
+        "/error",
+        "/api/health"
+    ).permitAll()
 
-                // Public authentication endpoints
-                .requestMatchers("/api/auth/**").permitAll()
+    .requestMatchers("/api/auth/**").permitAll()
 
-                // WebSocket endpoints
-                .requestMatchers("/ws/**").permitAll()
+    .requestMatchers("/ws/**").permitAll()
 
-                // All other endpoints require JWT authentication
-                .anyRequest().authenticated()
-            )
+    .anyRequest().authenticated()
+)
 
             .addFilterBefore(
                 jwtAuthenticationFilter,
